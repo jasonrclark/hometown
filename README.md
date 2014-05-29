@@ -20,7 +20,7 @@ Or install it yourself as:
 
 Enable instance creation tracking on a class via:
 
-    Hometown.track(Thread)
+    Hometown.track(::Thread)
 
 To determine calling location for a specific object:
 
