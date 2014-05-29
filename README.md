@@ -23,8 +23,8 @@ Determining the location of a particular object's instantation:
     # example.rb
     require 'hometown'
 
-    Hometown.trace(Array)
-    Hometown.home_for(Array.new)
+    Hometown.watch(Array)
+    Hometown.for(Array.new)
 
 
     > ruby example.rb

@@ -4,7 +4,7 @@ require "hometown/trace"
 module Hometown
   HOMETOWN_IVAR = :@__hometown_creation_backtrace
 
-  def self.trace(clazz)
+  def self.watch(clazz)
     clazz.define_singleton_method(:new) do |*args|
       trace = Hometown.create_trace(self, caller)
 
@@ -14,7 +14,7 @@ module Hometown
     end
   end
 
-  def self.home_for(instance)
+  def self.for(instance)
     instance.instance_variable_get(HOMETOWN_IVAR)
   end
 
