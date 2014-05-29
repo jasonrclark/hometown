@@ -8,27 +8,24 @@ class HometownTest < Minitest::Test
   class Portland
   end
 
-  def test_untraceed_class
+  def setup
+    Hometown.trace(Corvallis)
+    @corvallis = Corvallis.new
+  end
+
+  def test_untraced_class
     town = Portland.new
     assert_nil Hometown.home_for(town)
   end
 
-  def test_traceing
-    Hometown.trace(Corvallis)
-    town = Corvallis.new
-    refute_nil Hometown.home_for(town)
+  def test_tracing_includes_classname
+    result = Hometown.home_for(@corvallis)
+    assert_equal Corvallis, result.traced_class
   end
 
-  def test_traceing_includes_classname
-    Hometown.trace(Corvallis)
-    town = Corvallis.new
-    assert_includes Hometown.home_for(town), "Corvallis"
-  end
-
-  def test_traceing_includes_this_file
-    Hometown.trace(Corvallis)
-    town = Corvallis.new
-    assert_includes Hometown.home_for(town), __FILE__
+  def test_tracing_includes_this_file
+    result = Hometown.home_for(@corvallis)
+    assert_includes result.backtrace.join("\n"), __FILE__
   end
 
 end
