@@ -44,4 +44,12 @@ class HometownTest < Minitest::Test
     assert_equal Nottingham, result.traced_class
   end
 
+  def test_core_class
+    Hometown.watch(::Thread)
+    thread = Thread.new { sleep 1 }
+
+    result = Hometown.for(thread)
+    assert_equal ::Thread, result.traced_class
+  end
+
 end
