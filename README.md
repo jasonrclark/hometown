@@ -18,13 +18,20 @@ Or install it yourself as:
 
 ## Usage
 
-Enable instance creation tracking on a class via:
+Determining the location of a particular object's instantation:
 
-    Hometown.track(::Thread)
+    # example.rb
+    require 'hometown'
 
-To determine calling location for a specific object:
+    Hometown.trace(Array)
+    Hometown.home_for(Array.new)
 
-    Hometown.home_for(thread)
+
+    > ruby example.rb
+
+    #<Hometown::Trace:0x007fcd9c95ca10
+        @traced_class=Array,
+        @backtrace=["script:4:in `<main>'"]>
 
 ## Contributing
 
