@@ -5,10 +5,10 @@ module Hometown
   HOMETOWN_IVAR = :@__hometown_creation_backtrace
 
   def self.watch(clazz)
-    clazz.define_singleton_method(:new) do |*args|
+    clazz.define_singleton_method(:new) do |*args, &blk|
       trace = Hometown.create_trace(self, caller)
 
-      instance = super(*args)
+      instance = super(*args, &blk)
       instance.instance_variable_set(HOMETOWN_IVAR, trace)
       instance
     end

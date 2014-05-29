@@ -8,6 +8,12 @@ class HometownTest < Minitest::Test
   class Portland
   end
 
+  class Nottingham
+    def initialize(&blk)
+      blk.call
+    end
+  end
+
   def setup
     Hometown.watch(Corvallis)
     @corvallis = Corvallis.new
@@ -26,6 +32,16 @@ class HometownTest < Minitest::Test
   def test_tracing_includes_this_file
     result = Hometown.for(@corvallis)
     assert_includes result.backtrace.join("\n"), __FILE__
+  end
+
+  def test_initialize_with_block
+    Hometown.watch(Nottingham)
+    nottingham = Nottingham.new do
+      i = 1
+    end
+
+    result = Hometown.for(nottingham)
+    assert_equal Nottingham, result.traced_class
   end
 
 end
