@@ -3,7 +3,7 @@ require "hometown/version"
 module Hometown
   HOMETOWN_IVAR = :@__hometown_creation_backtrace
 
-  def self.track(clazz)
+  def self.trace(clazz)
     clazz.define_singleton_method(:new) do |*args|
       trace = Hometown.create_trace(self.name, caller)
 
