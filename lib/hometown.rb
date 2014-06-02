@@ -4,7 +4,7 @@ require "hometown/trace"
 module Hometown
   HOMETOWN_TRACE_ON_INSTANCE = :@__hometown_creation_backtrace
 
-  def self.watch(clazz)
+  def self.watch(clazz, opts={})
     return if clazz.respond_to?(:hometown_traced?)
 
     class << clazz
@@ -12,7 +12,10 @@ module Hometown
         trace = Hometown.create_trace(self, caller)
 
         instance = new_original(*args, &blk)
+
         instance.instance_variable_set(HOMETOWN_TRACE_ON_INSTANCE, trace)
+        Hometown.mark_for_disposal(instance)
+
         instance
       end
 
@@ -29,7 +32,19 @@ module Hometown
     instance.instance_variable_get(HOMETOWN_TRACE_ON_INSTANCE)
   end
 
+  def self.undisposed()
+    @undisposed
+  end
+
   def self.create_trace(clazz, backtrace)
     Trace.new(clazz, backtrace)
+  end
+
+  def self.mark_for_disposal(instance)
+    trace = Hometown.for(instance)
+
+    @undisposed ||= {}
+    @undisposed[trace] ||= 0
+    @undisposed[trace]  += 1
   end
 end
