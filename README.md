@@ -1,5 +1,6 @@
 # Hometown
 [![Gem Version](https://badge.fury.io/rb/hometown.png)](http://badge.fury.io/rb/hometown)
+[![Build Status](https://api.travis-ci.org/jasonrclark/hometown.png)](https://travis-ci.org/jasonrclark/hometown)
 
 Track object creation to stamp out pesky leaks.
 
