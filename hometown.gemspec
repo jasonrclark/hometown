@@ -18,11 +18,12 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler", "~> 1.6"
-  spec.add_development_dependency "rake",    "~> 10.2"
-  spec.add_development_dependency "minitest","~> 5.3"
-  spec.add_development_dependency "pry",     "~> 0.9"
-  spec.add_development_dependency "pry-nav", "~> 0.2"
-  spec.add_development_dependency "guard",   "~> 2.6"
+  spec.add_development_dependency "bundler",   "~> 1.6"
+  spec.add_development_dependency "coveralls", "~> 0.7"
+  spec.add_development_dependency "rake",      "~> 10.2"
+  spec.add_development_dependency "minitest",  "~> 5.3"
+  spec.add_development_dependency "pry",       "~> 0.9"
+  spec.add_development_dependency "pry-nav",   "~> 0.2"
+  spec.add_development_dependency "guard",     "~> 2.6"
   spec.add_development_dependency "guard-minitest", "~> 1.3"
 end
