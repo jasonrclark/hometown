@@ -19,10 +19,10 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "bundler", "~> 1.6"
-  spec.add_development_dependency "rake"
-  spec.add_development_dependency "minitest"
-  spec.add_development_dependency "guard"
-  spec.add_development_dependency "guard-minitest"
-  spec.add_development_dependency "pry"
-  spec.add_development_dependency "pry-nav"
+  spec.add_development_dependency "rake",    "~> 10.2"
+  spec.add_development_dependency "minitest","~> 5.3"
+  spec.add_development_dependency "pry",     "~> 0.9"
+  spec.add_development_dependency "pry-nav", "~> 0.2"
+  spec.add_development_dependency "guard",   "~> 2.6"
+  spec.add_development_dependency "guard-minitest", "~> 1.3"
 end
