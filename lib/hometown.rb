@@ -7,20 +7,23 @@ require "hometown/watch_for_disposal"
 module Hometown
   HOMETOWN_TRACE_ON_INSTANCE = :@__hometown_creation_backtrace
 
-  @undisposed = {}
-  @patched    = {}
+  @undisposed      = {}
+  @watch_patches   = {}
+  @dispose_patches = {}
 
   def self.watch(clazz)
-    return if already_patched?(clazz)
+    return if @watch_patches.include?(clazz)
 
-    @patched[clazz] = true
+    @watch_patches[clazz] = true
     Watch.patch(clazz)
   end
 
   def self.watch_for_disposal(clazz, disposal_method)
-    return if already_patched?(clazz)
+    return if @dispose_patches.include?(clazz)
 
     watch(clazz)
+
+    @dispose_patches[clazz] = true
     WatchForDisposal.patch(clazz, disposal_method)
   end
 

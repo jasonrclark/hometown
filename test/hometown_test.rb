@@ -143,4 +143,19 @@ class HometownTest < Minitest::Test
     assert_equal 6, disposable
     assert_equal 0, result[trace]
   end
+
+  def test_updating_watch_for_disposal
+    clazz = Class.new do
+      define_method(:dispose) do
+      end
+    end
+
+    Hometown.watch(clazz)
+    Hometown.watch_for_disposal(clazz, :dispose)
+    instance = clazz.new
+    trace = Hometown.for(instance)
+
+    result = Hometown.undisposed
+    assert_equal 1, result[trace]
+  end
 end
