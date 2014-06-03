@@ -3,8 +3,6 @@ require 'hometown'
 
 class HometownTest < Minitest::Test
   class Corvallis
-    def leave
-    end
   end
 
   class Portland
@@ -16,8 +14,13 @@ class HometownTest < Minitest::Test
     end
   end
 
+  class TraceForDisposal
+    def dispose
+    end
+  end
+
   def setup
-    Hometown.watch(Corvallis, :dispose => :leave)
+    Hometown.watch(Corvallis)
     @corvallis = Corvallis.new
   end
 
@@ -55,8 +58,21 @@ class HometownTest < Minitest::Test
   end
 
   def test_marks_for_disposal
+    Hometown.watch_for_disposal(TraceForDisposal, :dispose)
+    dispose = TraceForDisposal.new
+
     result = Hometown.undisposed
-    trace = Hometown.for(@corvallis)
+    trace = Hometown.for(dispose)
     assert_equal 1, result[trace]
+  end
+
+  def test_doesnt_mark_for_disposal
+    Hometown.watch(Nottingham)
+    town = Nottingham.new do
+    end
+
+    result = Hometown.undisposed
+    trace = Hometown.for(town)
+    assert_nil result[trace]
   end
 end

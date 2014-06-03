@@ -4,27 +4,56 @@ require "hometown/trace"
 module Hometown
   HOMETOWN_TRACE_ON_INSTANCE = :@__hometown_creation_backtrace
 
-  def self.watch(clazz, opts={})
-    return if clazz.respond_to?(:hometown_traced?)
+  module Watch
+    def self.included(clazz)
+      clazz.class_eval do
+        @after_create_hooks = []
+
+        def new_traced(*args, &blk)
+          trace = Hometown.create_trace(self, caller)
+
+          instance = new_original(*args, &blk)
+          instance.instance_variable_set(HOMETOWN_TRACE_ON_INSTANCE, trace)
+          run_after_create_hooks(instance)
+
+          instance
+        end
+
+        def run_after_create_hooks(instance)
+          hooks = instance.class.singleton_class.instance_variable_get(:@after_create_hooks)
+          hooks.each do |hook|
+            hook.call(instance)
+          end
+        end
+
+        alias_method :new_original, :new
+        alias_method :new, :new_traced
+      end
+    end
+  end
+
+  module WatchForDisposal
+    def self.included(clazz)
+      hooks = clazz.instance_variable_get(:@after_create_hooks)
+      hooks << Proc.new do |instance|
+        Hometown.mark_for_disposal(instance)
+      end
+    end
+  end
+
+  def self.watch(clazz)
+    return false if clazz.singleton_class.ancestors.include?(Watch)
 
     class << clazz
-      def new_traced(*args, &blk)
-        trace = Hometown.create_trace(self, caller)
+      include Watch
+    end
+  end
 
-        instance = new_original(*args, &blk)
+  def self.watch_for_disposal(clazz, disposal_method)
+    return unless watch(clazz)
 
-        instance.instance_variable_set(HOMETOWN_TRACE_ON_INSTANCE, trace)
-        Hometown.mark_for_disposal(instance)
-
-        instance
-      end
-
-      def hometown_traced?
-        true
-      end
-
-      alias_method :new_original, :new
-      alias_method :new, :new_traced
+    class << clazz
+      include WatchForDisposal
     end
   end
 
