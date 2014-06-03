@@ -7,7 +7,9 @@
 Track object creation to stamp out pesky leaks.
 
 ## Requirements
-Currently I'm testing against Ruby 2.1, but will be extending that in the future. I expect to allow back to 1.9.x, JRuby and Rubinius.
+Tests are run against MRI 1.9.3 through 2.1.2, JRuby 1.7 (latest) and head, and Rubinius 2.x (latest).
+
+Ruby 1.8.7 and REE are not supported. Sorry retro-Ruby fans!
 
 ## Installation
 
