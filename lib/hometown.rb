@@ -1,76 +1,31 @@
-require "hometown/version"
+require "hometown/hooks"
 require "hometown/trace"
+require "hometown/version"
+require "hometown/watch"
+require "hometown/watch_for_disposal"
 
 module Hometown
   HOMETOWN_TRACE_ON_INSTANCE = :@__hometown_creation_backtrace
 
   @undisposed = {}
-
-  module Watch
-    def self.patch(clazz)
-      clazz.instance_eval do
-        @after_create_hooks = []
-
-        class << self
-          def new_traced(*args, &blk)
-            trace = Hometown.create_trace(self, caller)
-
-            instance = new_original(*args, &blk)
-            instance.instance_variable_set(HOMETOWN_TRACE_ON_INSTANCE, trace)
-            run_after_create_hooks(instance)
-
-            instance
-          end
-
-          def run_after_create_hooks(instance)
-            hooks = instance.class.instance_variable_get(:@after_create_hooks)
-            hooks.each do |hook|
-              hook.call(instance)
-            end
-          end
-
-          alias_method :new_original, :new
-          alias_method :new, :new_traced
-        end
-
-      end
-    end
-  end
-
-  module WatchForDisposal
-    def self.patch(clazz, disposal_method)
-      hooks = clazz.instance_variable_get(:@after_create_hooks)
-      hooks << Proc.new do |instance|
-        Hometown.mark_for_disposal(instance)
-      end
-
-      clazz.class_eval do
-        define_method("#{disposal_method}_traced") do |*args, &blk|
-          Hometown.mark_disposed(self)
-          self.send("#{disposal_method}_original", *args, &blk)
-        end
-
-        alias_method "#{disposal_method}_original", disposal_method
-        alias_method disposal_method, "#{disposal_method}_traced"
-      end
-    end
-  end
+  @patched    = {}
 
   def self.watch(clazz)
-    @patched ||= {}
-    if @patched[clazz]
-      false
-    else
-      @patched[clazz] = true
-      Watch.patch(clazz)
-      true
-    end
+    return if already_patched?(clazz)
+
+    @patched[clazz] = true
+    Watch.patch(clazz)
   end
 
   def self.watch_for_disposal(clazz, disposal_method)
-    return unless watch(clazz)
+    return if already_patched?(clazz)
 
+    watch(clazz)
     WatchForDisposal.patch(clazz, disposal_method)
+  end
+
+  def self.already_patched?(clazz)
+    @patched.include?(clazz)
   end
 
   def self.for(instance)
