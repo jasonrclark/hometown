@@ -27,10 +27,6 @@ module Hometown
     WatchForDisposal.patch(clazz, disposal_method)
   end
 
-  def self.already_patched?(clazz)
-    @patched.include?(clazz)
-  end
-
   def self.for(instance)
     instance.instance_variable_get(HOMETOWN_TRACE_ON_INSTANCE)
   end
