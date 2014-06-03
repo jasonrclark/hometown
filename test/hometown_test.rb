@@ -2,13 +2,13 @@ require 'minitest/autorun'
 require 'hometown'
 
 class HometownTest < Minitest::Test
-  class Corvallis
+  class Traced
   end
 
-  class Portland
+  class Untraced
   end
 
-  class Nottingham
+  class TracedWithBlock
     def initialize(&blk)
       blk.call
     end
@@ -29,34 +29,39 @@ class HometownTest < Minitest::Test
     end
   end
 
-  def setup
-    Hometown.watch(Corvallis)
-    @corvallis = Corvallis.new
+  def teardown
+    Hometown.undisposed.clear
   end
 
   def test_untraced_class
-    town = Portland.new
-    assert_nil Hometown.for(town)
+    traced_object = Untraced.new
+    assert_nil Hometown.for(traced_object)
   end
 
   def test_tracing_includes_classname
-    result = Hometown.for(@corvallis)
-    assert_equal Corvallis, result.traced_class
+    Hometown.watch(Traced)
+    traced_object = Traced.new
+
+    result = Hometown.for(traced_object)
+    assert_equal Traced, result.traced_class
   end
 
   def test_tracing_includes_this_file
-    result = Hometown.for(@corvallis)
+    Hometown.watch(Traced)
+    traced_object = Traced.new
+
+    result = Hometown.for(traced_object)
     assert_includes result.backtrace.join("\n"), __FILE__
   end
 
   def test_initialize_with_block
-    Hometown.watch(Nottingham)
-    nottingham = Nottingham.new do
+    Hometown.watch(TracedWithBlock)
+    traced_object = TracedWithBlock.new do
       i = 1
     end
 
-    result = Hometown.for(nottingham)
-    assert_equal Nottingham, result.traced_class
+    result = Hometown.for(traced_object)
+    assert_equal TracedWithBlock, result.traced_class
   end
 
   def test_class_with_overridden_new
@@ -68,12 +73,13 @@ class HometownTest < Minitest::Test
   end
 
   def test_doesnt_mark_for_disposal
-    Hometown.watch(Nottingham)
-    town = Nottingham.new do
+    Hometown.watch(TracedWithBlock)
+    traced_object = TracedWithBlock.new do
+      i = 1
     end
 
     result = Hometown.undisposed
-    trace = Hometown.for(town)
+    trace = Hometown.for(traced_object)
     assert_nil result[trace]
   end
 
