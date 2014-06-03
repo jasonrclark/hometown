@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Hometown::VERSION
   spec.authors       = ["Jason R. Clark"]
   spec.email         = ["jason@jasonrclark.com"]
-  spec.summary       = %q{Track your object creation}
-  spec.description   = %q{Track your object creation to stamp out pesky leaked object bugs.}
+  spec.summary       = %q{Track object creation}
+  spec.description   = %q{Track object creation to stamp out pesky leaks.}
   spec.homepage      = "http://github.com/jasonrclark/hometown"
   spec.license       = "MIT"
 
