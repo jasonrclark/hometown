@@ -4,6 +4,8 @@ require "hometown/trace"
 module Hometown
   HOMETOWN_TRACE_ON_INSTANCE = :@__hometown_creation_backtrace
 
+  @undisposed = {}
+
   module Watch
     def self.included(clazz)
       clazz.class_eval do
@@ -72,7 +74,6 @@ module Hometown
   def self.mark_for_disposal(instance)
     trace = Hometown.for(instance)
 
-    @undisposed ||= {}
     @undisposed[trace] ||= 0
     @undisposed[trace]  += 1
   end
