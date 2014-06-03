@@ -2,6 +2,7 @@
 [![Gem Version](https://badge.fury.io/rb/hometown.png)](http://badge.fury.io/rb/hometown)
 [![Build Status](https://api.travis-ci.org/jasonrclark/hometown.png)](https://travis-ci.org/jasonrclark/hometown)
 [![Code Climate](https://codeclimate.com/github/jasonrclark/hometown.png)](https://codeclimate.com/github/jasonrclark/hometown)
+[![Coverage Status](https://coveralls.io/repos/jasonrclark/hometown/badge.png)](https://coveralls.io/r/jasonrclark/hometown)
 
 Track object creation to stamp out pesky leaks.
 
