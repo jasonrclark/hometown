@@ -14,8 +14,18 @@ class HometownTest < Minitest::Test
     end
   end
 
-  class TraceForDisposal
+  class Disposable
     def dispose
+    end
+  end
+
+  class DisposableArguments
+    def dispose(a,b,c)
+      if block_given?
+        yield a, b, c
+      else
+        [a,b,c]
+      end
     end
   end
 
@@ -49,33 +59,12 @@ class HometownTest < Minitest::Test
     assert_equal Nottingham, result.traced_class
   end
 
-  def test_core_class
+  def test_class_with_overridden_new
     Hometown.watch(::Thread)
     thread = Thread.new { sleep 1 }
 
     result = Hometown.for(thread)
     assert_equal ::Thread, result.traced_class
-  end
-
-  def test_marks_for_disposal
-    Hometown.watch_for_disposal(TraceForDisposal, :dispose)
-    dispose = TraceForDisposal.new
-
-    result = Hometown.undisposed
-    trace = Hometown.for(dispose)
-    assert_equal 1, result[trace]
-  end
-
-  def test_multiples_marked_for_disposal
-    Hometown.watch_for_disposal(TraceForDisposal, :dispose)
-    latest_disposed = nil
-    2.times do
-      latest_disposed = TraceForDisposal.new
-    end
-
-    result = Hometown.undisposed
-    trace = Hometown.for(latest_disposed)
-    assert_equal 2, result[trace]
   end
 
   def test_doesnt_mark_for_disposal
@@ -86,5 +75,66 @@ class HometownTest < Minitest::Test
     result = Hometown.undisposed
     trace = Hometown.for(town)
     assert_nil result[trace]
+  end
+
+  def test_marks_for_disposal
+    Hometown.watch_for_disposal(Disposable, :dispose)
+    dispose = Disposable.new
+
+    result = Hometown.undisposed
+    trace = Hometown.for(dispose)
+    assert_equal 1, result[trace]
+  end
+
+  def test_multiples_marked_for_disposal
+    Hometown.watch_for_disposal(Disposable, :dispose)
+    latest_disposed = nil
+    2.times do
+      latest_disposed = Disposable.new
+    end
+
+    result = Hometown.undisposed
+    trace = Hometown.for(latest_disposed)
+    assert_equal 2, result[trace]
+  end
+
+  def test_actually_disposing
+    Hometown.watch_for_disposal(Disposable, :dispose)
+    dispose_me = Disposable.new
+
+    result = Hometown.undisposed
+    trace = Hometown.for(dispose_me)
+    assert_equal 1, result[trace]
+
+    dispose_me.dispose
+    assert_equal 0, result[trace]
+  end
+
+  def test_actually_disposing_with_arguments
+    Hometown.watch_for_disposal(DisposableArguments, :dispose)
+    dispose_me = DisposableArguments.new
+
+    result = Hometown.undisposed
+    trace = Hometown.for(dispose_me)
+    assert_equal 1, result[trace]
+
+    disposable = dispose_me.dispose(1,2,3)
+    assert_equal [1,2,3], disposable
+    assert_equal 0, result[trace]
+  end
+
+  def test_actually_disposing_with_arguments_and_block
+    Hometown.watch_for_disposal(DisposableArguments, :dispose)
+    dispose_me = DisposableArguments.new
+
+    result = Hometown.undisposed
+    trace = Hometown.for(dispose_me)
+    assert_equal 1, result[trace]
+
+    disposable = dispose_me.dispose(1,2,3) do |a, b, c|
+      a + b + c
+    end
+    assert_equal 6, disposable
+    assert_equal 0, result[trace]
   end
 end
