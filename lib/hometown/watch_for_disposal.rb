@@ -1,19 +1,29 @@
 module Hometown
   module WatchForDisposal
     def self.patch(clazz, disposal_method)
+      add_disposal_hooks(clazz)
+      patch_disposal_method(clazz, disposal_method)
+    end
+
+    def self.add_disposal_hooks(clazz)
       hooks = clazz.instance_variable_get(:@hooks)
       hooks << Proc.new do |instance|
         Hometown.mark_for_disposal(instance)
       end
+    end
+
+    def self.patch_disposal_method(clazz, disposal_method)
+      traced   = "#{disposal_method}_traced"
+      original = "#{disposal_method}_original"
 
       clazz.class_eval do
-        define_method("#{disposal_method}_traced") do |*args, &blk|
+        define_method(traced) do |*args, &blk|
           Hometown.mark_disposed(self)
-          self.send("#{disposal_method}_original", *args, &blk)
+          self.send(original, *args, &blk)
         end
 
-        alias_method "#{disposal_method}_original", disposal_method
-        alias_method disposal_method, "#{disposal_method}_traced"
+        alias_method original, disposal_method
+        alias_method disposal_method, traced
       end
     end
   end
