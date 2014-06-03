@@ -7,35 +7,38 @@ module Hometown
   @undisposed = {}
 
   module Watch
-    def self.included(clazz)
-      clazz.class_eval do
+    def self.patch(clazz)
+      clazz.instance_eval do
         @after_create_hooks = []
 
-        def new_traced(*args, &blk)
-          trace = Hometown.create_trace(self, caller)
+        class << self
+          def new_traced(*args, &blk)
+            trace = Hometown.create_trace(self, caller)
 
-          instance = new_original(*args, &blk)
-          instance.instance_variable_set(HOMETOWN_TRACE_ON_INSTANCE, trace)
-          run_after_create_hooks(instance)
+            instance = new_original(*args, &blk)
+            instance.instance_variable_set(HOMETOWN_TRACE_ON_INSTANCE, trace)
+            run_after_create_hooks(instance)
 
-          instance
-        end
-
-        def run_after_create_hooks(instance)
-          hooks = instance.class.singleton_class.instance_variable_get(:@after_create_hooks)
-          hooks.each do |hook|
-            hook.call(instance)
+            instance
           end
+
+          def run_after_create_hooks(instance)
+            hooks = instance.class.instance_variable_get(:@after_create_hooks)
+            hooks.each do |hook|
+              hook.call(instance)
+            end
+          end
+
+          alias_method :new_original, :new
+          alias_method :new, :new_traced
         end
 
-        alias_method :new_original, :new
-        alias_method :new, :new_traced
       end
     end
   end
 
   module WatchForDisposal
-    def self.included(clazz)
+    def self.patch(clazz)
       hooks = clazz.instance_variable_get(:@after_create_hooks)
       hooks << Proc.new do |instance|
         Hometown.mark_for_disposal(instance)
@@ -44,19 +47,20 @@ module Hometown
   end
 
   def self.watch(clazz)
-    return false if clazz.singleton_class.ancestors.include?(Watch)
-
-    class << clazz
-      include Watch
+    @patched ||= {}
+    if @patched[clazz]
+      false
+    else
+      @patched[clazz] = true
+      Watch.patch(clazz)
+      true
     end
   end
 
   def self.watch_for_disposal(clazz, disposal_method)
     return unless watch(clazz)
 
-    class << clazz
-      include WatchForDisposal
-    end
+    WatchForDisposal.patch(clazz)
   end
 
   def self.for(instance)
