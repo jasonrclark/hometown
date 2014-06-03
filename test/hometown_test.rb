@@ -66,6 +66,18 @@ class HometownTest < Minitest::Test
     assert_equal 1, result[trace]
   end
 
+  def test_multiples_marked_for_disposal
+    Hometown.watch_for_disposal(TraceForDisposal, :dispose)
+    latest_disposed = nil
+    2.times do
+      latest_disposed = TraceForDisposal.new
+    end
+
+    result = Hometown.undisposed
+    trace = Hometown.for(latest_disposed)
+    assert_equal 2, result[trace]
+  end
+
   def test_doesnt_mark_for_disposal
     Hometown.watch(Nottingham)
     town = Nottingham.new do
