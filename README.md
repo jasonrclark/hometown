@@ -1,4 +1,5 @@
 # Hometown
+[![Gem Version](https://badge.fury.io/rb/hometown.svg)](http://badge.fury.io/rb/hometown)
 
 Track object creation to stamp out pesky leaks.
 
