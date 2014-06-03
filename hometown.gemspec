@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Jason R. Clark"]
   spec.email         = ["jason@jasonrclark.com"]
   spec.summary       = %q{Track your object creation}
-  spec.description   = %q{Track your object creation for helping stamp out pesky leaked object bugs.}
+  spec.description   = %q{Track your object creation to stamp out pesky leaked object bugs.}
   spec.homepage      = "http://github.com/jasonrclark/hometown"
   spec.license       = "MIT"
 
