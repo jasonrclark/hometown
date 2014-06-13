@@ -7,7 +7,8 @@
 Track object creation to stamp out pesky leaks.
 
 ## Requirements
-Tests are run against MRI 1.9.3 through 2.1.2, JRuby 1.7 (latest) and head, and Rubinius 2.x (latest).
+Tests are run against MRI 1.9.3 through 2.1.2, JRuby 1.7 (latest) and head, and
+Rubinius 2.x (latest).
 
 Ruby 1.8.7 and REE are not supported. Sorry retro-Ruby fans!
 
@@ -17,7 +18,13 @@ Ruby 1.8.7 and REE are not supported. Sorry retro-Ruby fans!
 
 ## Usage
 
-Find where an object was created:
+### Object Creation
+Hometown's primary use is finding where objects were instantiated.  In
+sufficiently complicated applications, this can be a real help debugging issues
+like testing side-effects (i.e. where did that thread get started from?)
+
+To find where an object was created, `Hometown.watch` its class, and then ask
+`Hometown.for` on an instance of that class to see where it started out.
 
 ```
 # examples/example.rb
@@ -38,7 +45,17 @@ $ ruby examples/example.rb
 ```
 
 
-Track disposal of an object:
+### Resource Disposal
+Though not hugely common in the Ruby world, some libraries (such as [swt]
+(https://github.com/danlucraft/swt)) require you to explicitly dispose of
+objects you create. Most often this happens when it's an interface library to
+some other system that holds OS resources until you release them back. Leaking
+is a bad idea.
+
+Hometown can help track down these leaks. To watch a class of objects to ensure
+created instances are disposed, call `Hometown.watch_for_disposal` on the
+class. `Hometown.undisposed` returns you objects indicating--with stack traces
+--all the locations where an object was created but not released.
 
 ```
 # dispose.rb
@@ -75,7 +92,7 @@ Properly disposed!
 
 ## Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/hometown/fork )
+1. Fork it ( https://github.com/jasonrclark/hometown/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
