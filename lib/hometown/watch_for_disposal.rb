@@ -18,7 +18,7 @@ module Hometown
 
       clazz.class_eval do
         define_method(traced) do |*args, &blk|
-          Hometown.dispose_of(self)
+          Hometown.notice_disposed(self)
           self.send(original, *args, &blk)
         end
 
