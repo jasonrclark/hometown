@@ -35,10 +35,6 @@ module Hometown
     @undisposed
   end
 
-  def self.create_trace(clazz, backtrace)
-    Trace.new(clazz, backtrace)
-  end
-
   def self.mark_for_disposal(instance)
     trace = Hometown.for(instance)
     @undisposed[trace] += 1

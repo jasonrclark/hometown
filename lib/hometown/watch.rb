@@ -6,7 +6,7 @@ module Hometown
 
         class << self
           def new_traced(*args, &blk)
-            trace = Hometown.create_trace(self, caller)
+            trace = Hometown::Trace.new(self, caller)
 
             instance = new_untraced(*args, &blk)
             instance.instance_variable_set(HOMETOWN_TRACE_ON_INSTANCE, trace)
