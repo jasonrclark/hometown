@@ -46,8 +46,13 @@ module Hometown
     HOMETOWN_TRACE_ON_INSTANCE = :@__hometown_creation_backtrace
 
     def add_trace_for(instance)
-      trace = Hometown::Trace.new(instance.class, caller[4..-1])
+      trace = Hometown::Trace.new(instance.class, scrubbed_caller)
       instance.instance_variable_set(HOMETOWN_TRACE_ON_INSTANCE, trace)
+    end
+
+    def scrubbed_caller
+      backtrace = caller.dup
+      backtrace.reject { |line| %r{/lib/hometown/creation_tracer.rb}.match(line) }
     end
 
     def find_trace_for(instance)
