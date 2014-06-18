@@ -2,21 +2,36 @@ module Hometown
   module Watch
     @watched_classes = {}
 
-    def self.patch(clazz, on_instance_created=nil)
-      update_on_instance_created(clazz, on_instance_created)
+    def self.patch(clazz, other_instance_hook=nil)
+      if !patched?(clazz)
+        remember_patched(clazz)
+        on_creation_mark_instance(clazz)
+        install_traced_new(clazz)
+      end
 
-      return if @watched_classes.include?(clazz)
+      # Critical that we only add other instance hooks after our primary
+      # creation hook is registered above!
+      update_on_instance_created(clazz, other_instance_hook)
+    end
+
+    def self.patched?(clazz)
+      @watched_classes.include?(clazz)
+    end
+
+    def self.remember_patched(clazz)
       @watched_classes[clazz] = true
+    end
 
+    def self.on_creation_mark_instance(clazz)
+      update_on_instance_created(clazz, method(:mark_instance))
+    end
+
+    def self.install_traced_new(clazz)
       clazz.instance_eval do
         class << self
           def new_traced(*args, &blk)
-            trace = Hometown::Trace.new(self, caller)
-
             instance = new_untraced(*args, &blk)
-            instance.instance_variable_set(HOMETOWN_TRACE_ON_INSTANCE, trace)
-            @instance_hooks.each { |hook| hook.call(instance) } if @instance_hooks
-
+            @instance_hooks.each { |hook| hook.call(instance) }
             instance
           end
 
@@ -24,6 +39,11 @@ module Hometown
           alias_method :new, :new_traced
         end
       end
+    end
+
+    def self.mark_instance(instance)
+      trace = Hometown::Trace.new(instance.class, caller[4..-1])
+      instance.instance_variable_set(HOMETOWN_TRACE_ON_INSTANCE, trace)
     end
 
     # This hook allows other tracing in Hometown to get a whack at an object
