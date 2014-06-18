@@ -7,7 +7,7 @@ module Hometown
     def patch(clazz, other_instance_hook=nil)
       if !patched?(clazz)
         remember_patched(clazz)
-        on_creation_mark_instance(clazz)
+        on_creation_add_trace_for_instance(clazz)
         install_traced_new(clazz)
       end
 
@@ -24,8 +24,8 @@ module Hometown
       @tracing_classes[clazz] = true
     end
 
-    def on_creation_mark_instance(clazz)
-      update_on_instance_created(clazz, method(:mark_instance))
+    def on_creation_add_trace_for_instance(clazz)
+      update_on_instance_created(clazz, method(:add_trace_for))
     end
 
     def install_traced_new(clazz)
@@ -43,9 +43,15 @@ module Hometown
       end
     end
 
-    def mark_instance(instance)
+    HOMETOWN_TRACE_ON_INSTANCE = :@__hometown_creation_backtrace
+
+    def add_trace_for(instance)
       trace = Hometown::Trace.new(instance.class, caller[4..-1])
       instance.instance_variable_set(HOMETOWN_TRACE_ON_INSTANCE, trace)
+    end
+
+    def find_trace_for(instance)
+      instance.instance_variable_get(HOMETOWN_TRACE_ON_INSTANCE)
     end
 
     # This hook allows other tracing in Hometown to get a whack at an object

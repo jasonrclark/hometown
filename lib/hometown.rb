@@ -4,8 +4,6 @@ require "hometown/trace"
 require "hometown/version"
 
 module Hometown
-  HOMETOWN_TRACE_ON_INSTANCE = :@__hometown_creation_backtrace
-
   @creation_tracer = Hometown::CreationTracer.new
   @disposal_tracer = Hometown::DisposalTracer.new
 
@@ -26,7 +24,7 @@ module Hometown
   end
 
   def self.for(instance)
-    instance.instance_variable_get(HOMETOWN_TRACE_ON_INSTANCE)
+    @creation_tracer.find_trace_for(instance)
   end
 
   def self.undisposed
