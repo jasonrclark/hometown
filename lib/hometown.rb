@@ -7,23 +7,23 @@ require "hometown/watch_for_disposal"
 module Hometown
   HOMETOWN_TRACE_ON_INSTANCE = :@__hometown_creation_backtrace
 
-  @undisposed      = {}
-  @watch_patches   = {}
-  @dispose_patches = {}
+  @undisposed      = Hash.new(0)
+  @watched_classes = {}
+  @dispose_class   = {}
 
   def self.watch(clazz)
-    return if @watch_patches.include?(clazz)
+    return if @watched_classes.include?(clazz)
 
-    @watch_patches[clazz] = true
+    @watched_classes[clazz] = true
     Watch.patch(clazz)
   end
 
   def self.watch_for_disposal(clazz, disposal_method)
-    return if @dispose_patches.include?(clazz)
+    return if @dispose_class.include?(clazz)
 
     watch(clazz)
 
-    @dispose_patches[clazz] = true
+    @dispose_class[clazz] = true
     WatchForDisposal.patch(clazz, disposal_method)
   end
 
@@ -41,9 +41,7 @@ module Hometown
 
   def self.mark_for_disposal(instance)
     trace = Hometown.for(instance)
-
-    @undisposed[trace] ||= 0
-    @undisposed[trace]  += 1
+    @undisposed[trace] += 1
   end
 
   def self.mark_disposed(instance)

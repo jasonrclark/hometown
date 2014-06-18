@@ -80,7 +80,7 @@ class HometownTest < Minitest::Test
 
     result = Hometown.undisposed
     trace = Hometown.for(traced_object)
-    assert_nil result[trace]
+    assert_equal 0, result[trace]
   end
 
   def test_marks_for_disposal
