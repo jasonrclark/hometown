@@ -16,7 +16,7 @@ module Hometown
     end
 
     def self.watch_class(clazz)
-      Watch.patch(clazz, Proc.new do |instance|
+      Hometown.creation_tracer.patch(clazz, Proc.new do |instance|
         mark_for_disposal(instance)
       end)
     end

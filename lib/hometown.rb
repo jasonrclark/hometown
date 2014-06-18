@@ -1,13 +1,19 @@
+require "hometown/creation_tracer"
 require "hometown/trace"
 require "hometown/version"
-require "hometown/watch"
 require "hometown/watch_for_disposal"
 
 module Hometown
   HOMETOWN_TRACE_ON_INSTANCE = :@__hometown_creation_backtrace
 
+  @creation_tracer = Hometown::CreationTracer.new
+
+  def self.creation_tracer
+    @creation_tracer
+  end
+
   def self.watch(clazz)
-    Watch.patch(clazz)
+    @creation_tracer.patch(clazz)
   end
 
   def self.watch_for_disposal(clazz, disposal_method)

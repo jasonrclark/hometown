@@ -1,8 +1,10 @@
 module Hometown
-  module Watch
-    @watched_classes = {}
+  class CreationTracer
+    def initialize
+      @watched_classes = {}
+    end
 
-    def self.patch(clazz, other_instance_hook=nil)
+    def patch(clazz, other_instance_hook=nil)
       if !patched?(clazz)
         remember_patched(clazz)
         on_creation_mark_instance(clazz)
@@ -14,19 +16,19 @@ module Hometown
       update_on_instance_created(clazz, other_instance_hook)
     end
 
-    def self.patched?(clazz)
+    def patched?(clazz)
       @watched_classes.include?(clazz)
     end
 
-    def self.remember_patched(clazz)
+    def remember_patched(clazz)
       @watched_classes[clazz] = true
     end
 
-    def self.on_creation_mark_instance(clazz)
+    def on_creation_mark_instance(clazz)
       update_on_instance_created(clazz, method(:mark_instance))
     end
 
-    def self.install_traced_new(clazz)
+    def install_traced_new(clazz)
       clazz.instance_eval do
         class << self
           def new_traced(*args, &blk)
@@ -41,14 +43,14 @@ module Hometown
       end
     end
 
-    def self.mark_instance(instance)
+    def mark_instance(instance)
       trace = Hometown::Trace.new(instance.class, caller[4..-1])
       instance.instance_variable_set(HOMETOWN_TRACE_ON_INSTANCE, trace)
     end
 
     # This hook allows other tracing in Hometown to get a whack at an object
     # after it's been created without forcing them to patch new themselves
-    def self.update_on_instance_created(clazz, on_instance_created)
+    def update_on_instance_created(clazz, on_instance_created)
       return unless on_instance_created
       clazz.instance_eval do
         @instance_hooks ||= []
