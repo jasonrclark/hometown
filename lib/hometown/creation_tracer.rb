@@ -1,7 +1,7 @@
 module Hometown
   class CreationTracer
     def initialize
-      @watched_classes = {}
+      @tracing_classes = {}
     end
 
     def patch(clazz, other_instance_hook=nil)
@@ -17,11 +17,11 @@ module Hometown
     end
 
     def patched?(clazz)
-      @watched_classes.include?(clazz)
+      @tracing_classes.include?(clazz)
     end
 
     def remember_patched(clazz)
-      @watched_classes[clazz] = true
+      @tracing_classes[clazz] = true
     end
 
     def on_creation_mark_instance(clazz)
