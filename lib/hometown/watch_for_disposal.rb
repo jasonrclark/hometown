@@ -14,11 +14,11 @@ module Hometown
 
     def self.patch_disposal_method(clazz, disposal_method)
       traced   = "#{disposal_method}_traced"
-      original = "#{disposal_method}_original"
+      original = "#{disposal_method}_untraced"
 
       clazz.class_eval do
         define_method(traced) do |*args, &blk|
-          Hometown.mark_disposed(self)
+          Hometown.dispose_of(self)
           self.send(original, *args, &blk)
         end
 

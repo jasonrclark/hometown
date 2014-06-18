@@ -44,7 +44,7 @@ module Hometown
     @undisposed[trace] += 1
   end
 
-  def self.mark_disposed(instance)
+  def self.dispose_of(instance)
     trace = Hometown.for(instance)
 
     if @undisposed[trace]
