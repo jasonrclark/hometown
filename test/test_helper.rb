@@ -3,4 +3,5 @@ if ENV["CI"]
   Coveralls.wear!
 end
 
+gem 'minitest'
 require 'minitest/autorun'
