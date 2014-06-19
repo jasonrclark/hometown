@@ -28,6 +28,16 @@ module Hometown
   end
 
   def self.undisposed
-    @disposal_tracer.undisposed()
+    @disposal_tracer.undisposed
+  end
+
+  def self.undisposed_report
+    @disposal_tracer.undisposed_report
+  end
+
+  def self.undisposed_report_at_exit
+    at_exit do
+      puts Hometown.undisposed_report
+    end
   end
 end

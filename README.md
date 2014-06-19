@@ -56,6 +56,8 @@ Hometown can help track down these leaks. To watch a class of objects to ensure
 created instances are disposed, call `Hometown.watch_for_disposal` on the
 class. `Hometown.undisposed` returns you objects indicating--with stack traces
 --all the locations where an object was created but not released.
+`Hometown.undisposed_report` will give a formatted output of the undisposed
+objects.
 
 ```
 # dispose.rb
@@ -73,12 +75,13 @@ Hometown.watch_for_disposal(Disposable, :dispose)
 # Creating initial object
 disposable = Disposable.new
 puts "Still there!"
-p Hometown.undisposed()
+p Hometown.undisposed
+puts
 
 # All done!
 disposable.dispose
 puts "Properly disposed"
-p Hometown.undisposed()
+puts Hometown.undisposed_report
 
 
 $ ruby examples/dispose.rb
@@ -87,7 +90,12 @@ Still there!
 { #<Hometown::Trace:0x007f9aa516ec88 ...> => 1 }
 
 Properly disposed!
-{ #<Hometown::Trace:0x007f9aa516ec88 ...> => 0 }
+Undisposed Resources:
+[Disposable] => 0
+	examples/dispose.rb:13:in `<main>'
+
+Undiposed Totals:
+[Disposable] => 0
 ```
 
 ## Contributing

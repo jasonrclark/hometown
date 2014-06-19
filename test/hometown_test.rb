@@ -158,4 +158,19 @@ class HometownTest < Minitest::Test
     result = Hometown.undisposed
     assert_equal 1, result[trace]
   end
+
+  def test_undisposed_report
+    clazz = Class.new do
+      define_method(:dispose) do
+      end
+    end
+
+    Hometown.watch_for_disposal(clazz, :dispose)
+    instance = clazz.new
+
+    report = Hometown.undisposed_report
+    assert_kind_of String, report
+    assert_includes report, clazz.to_s
+    assert_includes report, __FILE__
+  end
 end

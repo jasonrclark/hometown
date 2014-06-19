@@ -43,5 +43,20 @@ module Hometown
       trace = Hometown.for(instance)
       @undisposed[trace] -= 1 if @undisposed[trace]
     end
+
+    def undisposed_report
+      result = "Undisposed Resources:\n"
+      @undisposed.each do |trace, count|
+        result += "[#{trace.traced_class}] => #{count}\n"
+        result += "\t#{trace.backtrace.join("\n\t")}\n\n"
+      end
+
+      result += "Undiposed Totals:\n"
+      @undisposed.group_by { |trace, _| trace.traced_class }.each do |clazz, counts|
+        count = counts.map { |count| count.last }.inject(0, &:+)
+        result += "[#{clazz}] => #{count}"
+      end
+      result
+    end
   end
 end
