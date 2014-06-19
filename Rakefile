@@ -11,12 +11,14 @@ Rake::TestTask.new do |test|
   test.test_files = FileList['test/**/*_test.rb']
 end
 
-Rake::Task['release:source_control_push'].clear
-task 'release:source_control_push' do
-  `git push origin master`
+if Rake::Task.task_defined?("release:source_control_push")
+  Rake::Task['release:source_control_push'].clear
+  task 'release:source_control_push' do
+    `git push origin master`
 
-  version = Bundler::GemHelper.gemspec.version
-  version_tag = "v#{version}"
-  `git tag -a -m \"Version #{version}\" #{version_tag}`
-  `git push --tags`
+    version = Bundler::GemHelper.gemspec.version
+    version_tag = "v#{version}"
+    `git tag -a -m \"Version #{version}\" #{version_tag}`
+    `git push --tags`
+  end
 end
