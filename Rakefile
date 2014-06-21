@@ -12,6 +12,8 @@ Rake::TestTask.new do |test|
 end
 
 if Rake::Task.task_defined?("release:source_control_push")
+  puts "Found release:source_control_push task... overwriting to support push.default=nothing"
+
   Rake::Task['release:source_control_push'].clear
   task 'release:source_control_push' do
     `git push origin master`
