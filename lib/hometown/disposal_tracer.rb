@@ -83,7 +83,7 @@ module Hometown
       hash.group_by { |trace, _| trace.traced_class }.each do |clazz, counts|
         count = counts.map { |count| count.last }.inject(0, &:+)
         if count > 0
-          result += "[#{clazz}] => #{count}"
+          result += "[#{clazz}] => #{count}\n"
         end
       end
 

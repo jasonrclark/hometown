@@ -33,7 +33,9 @@ module Hometown
 
   def self.undisposed_report_at_exit
     at_exit do
-      puts Hometown.undisposed_report
+      report = Hometown.undisposed_report
+      report = "No leaks? Nice work!" if report.empty?
+      puts report
     end
   end
 end
