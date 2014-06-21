@@ -7,12 +7,8 @@ module Hometown
   @creation_tracer = Hometown::CreationTracer.new
   @disposal_tracer = Hometown::DisposalTracer.new
 
-  def self.creation_tracer
-    @creation_tracer
-  end
-
-  def self.disposal_tracer
-    @disposal_tracer
+  class << self
+    attr_accessor :creation_tracer, :disposal_tracer
   end
 
   def self.watch(clazz)

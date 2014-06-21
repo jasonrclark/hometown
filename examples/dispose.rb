@@ -14,9 +14,11 @@ Hometown.undisposed_report_at_exit
 disposable = Disposable.new
 Disposable.new
 puts "Still there!"
+puts "*" * 30
 puts Hometown.undisposed_report
 puts
 
-# All done... at_exit hook will show the results!
+# Dispose of one, and at_exit hook will show the results!
 disposable.dispose
-puts "Properly disposed"
+puts "Final undisposed report!"
+puts "*" * 30

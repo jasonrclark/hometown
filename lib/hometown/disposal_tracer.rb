@@ -1,10 +1,12 @@
 module Hometown
   class DisposalTracer
-    attr_reader :undisposed
+    attr_reader :undisposed, :untraced_disposals
 
     def initialize
-      @undisposed      = Hash.new(0)
       @tracing_classes = {}
+
+      @undisposed         = Hash.new(0)
+      @untraced_disposals = Hash.new(0)
     end
 
     def patch(clazz, disposal_method)
@@ -41,22 +43,59 @@ module Hometown
 
     def notice_disposed(instance)
       trace = Hometown.for(instance)
-      @undisposed[trace] -= 1 if @undisposed[trace]
+      if trace
+        @undisposed[trace] -= 1
+      else
+        trace = Trace.new(instance.class, caller)
+        @untraced_disposals[trace] += 1
+      end
     end
 
+    UNDISPOSED_HEADING = "Undisposed Resources"
+    UNTRACED_HEADING   = "Untraced Disposals"
+    UNDISPOSED_TOTALS_HEADING = "Undisposed Totals"
+    UNTRACED_TOTALS_HEADING   = "Untraced Disposals Totals"
+
     def undisposed_report
-      result = "Undisposed Resources:\n"
-      @undisposed.each do |trace, count|
-        result += "[#{trace.traced_class}] => #{count}\n"
-        result += "\t#{trace.backtrace.join("\n\t")}\n\n"
+      result  = format_trace_hash(UNDISPOSED_HEADING, @undisposed)
+      result += format_trace_hash(UNTRACED_HEADING, @untraced_disposals)
+
+      result += format_totals(UNDISPOSED_TOTALS_HEADING, @undisposed)
+      result += format_totals(UNTRACED_TOTALS_HEADING, @untraced_disposals)
+
+      result
+    end
+
+    def format_trace_hash(heading, hash)
+      result = ""
+      hash.each do |trace, count|
+        if count > 0
+          result += "[#{trace.traced_class}] => #{count}\n"
+          result += "\t#{trace.backtrace.join("\n\t")}\n\n"
+        end
       end
 
-      result += "Undiposed Totals:\n"
-      @undisposed.group_by { |trace, _| trace.traced_class }.each do |clazz, counts|
+      add_heading_if_needed(heading, result)
+    end
+
+    def format_totals(heading, hash)
+      result = ""
+      hash.group_by { |trace, _| trace.traced_class }.each do |clazz, counts|
         count = counts.map { |count| count.last }.inject(0, &:+)
-        result += "[#{clazz}] => #{count}"
+        if count > 0
+          result += "[#{clazz}] => #{count}"
+        end
       end
-      result
+
+      add_heading_if_needed(heading, result)
+    end
+
+    def add_heading_if_needed(heading, result)
+      if result.empty?
+        ""
+      else
+        "#{heading}:\n#{result}"
+      end
     end
   end
 end
