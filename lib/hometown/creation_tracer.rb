@@ -33,7 +33,7 @@ module Hometown
         class << self
           def new_traced(*args, &blk)
             instance = new_untraced(*args, &blk)
-            @instance_hooks.each { |hook| hook.call(instance) }
+            self.instance_hooks.each { |hook| hook.call(instance) }
             instance
           end
 
@@ -64,6 +64,17 @@ module Hometown
     def update_on_instance_created(clazz, on_instance_created)
       return unless on_instance_created
       clazz.instance_eval do
+        def instance_hooks
+          hooks = (self.ancestors + [self]).map do |target|
+            target.instance_variable_get(:@instance_hooks)
+          end
+
+          hooks.flatten!
+          hooks.compact!
+          hooks.uniq!
+          hooks
+        end
+
         @instance_hooks ||= []
         @instance_hooks << on_instance_created
       end

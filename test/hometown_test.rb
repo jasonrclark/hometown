@@ -8,6 +8,9 @@ class HometownTest < Minitest::Test
   class Untraced
   end
 
+  class SubclassOfTraced < Traced
+  end
+
   class TracedWithBlock
     def initialize(&blk)
       blk.call
@@ -44,6 +47,14 @@ class HometownTest < Minitest::Test
 
     result = Hometown.for(traced_object)
     assert_equal Traced, result.traced_class
+  end
+
+  def test_tracing_extends_to_subclasses
+    Hometown.watch(Traced)
+    traced_object = SubclassOfTraced.new
+
+    result = Hometown.for(traced_object)
+    assert_equal SubclassOfTraced, result.traced_class
   end
 
   def test_tracing_includes_this_file
