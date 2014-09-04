@@ -26,7 +26,7 @@ like testing side-effects (i.e. where did that thread get started from?)
 To find where an object was created, `Hometown.watch` its class, and then ask
 `Hometown.for` on an instance of that class to see where it started out.
 
-```
+```ruby
 # examples/example.rb
 require 'hometown'
 
@@ -59,7 +59,7 @@ class. `Hometown.undisposed` returns you objects indicating--with stack traces
 `Hometown.undisposed_report` will give a formatted output of the undisposed
 objects.
 
-```
+```ruby
 # dispose.rb
 require 'hometown'
 
