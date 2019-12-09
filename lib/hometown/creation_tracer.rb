@@ -56,6 +56,7 @@ module Hometown
     end
 
     def find_trace_for(instance)
+      return unless instance.instance_variable_defined?(HOMETOWN_TRACE_ON_INSTANCE)
       instance.instance_variable_get(HOMETOWN_TRACE_ON_INSTANCE)
     end
 
@@ -66,7 +67,9 @@ module Hometown
       clazz.instance_eval do
         def instance_hooks
           hooks = (self.ancestors + [self]).map do |target|
-            target.instance_variable_get(:@instance_hooks)
+            if target.instance_variable_defined?(:@instance_hooks)
+              target.instance_variable_get(:@instance_hooks)
+            end
           end
 
           hooks.flatten!
